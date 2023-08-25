@@ -104,6 +104,11 @@ if __name__ == '__main__':
             Flag_Status("w") #Se cambia el estado de la bandera "FLAG" a false.
             error=sys.exc_info()[2] #Captura del error generado por el sistema.
             errorinfo=traceback.format_tb(error)[0] #Cartura del detalle del error.
+            dict_log['Log_Error']={
+                'Error': str(sys.exc_info()[1]),
+                'error_info': errorinfo
+            }
+            dict_log_srt=json.dumps(dict_log, sort_keys=True, indent=4) #Se transforma el diccionario a formato texto.
             print(str(sys.exc_info()[1]), errorinfo, sep='\n\n')
             print_log(dict_log_srt, date_log) #Se registra en el log de eventos el resumen.
             pass
