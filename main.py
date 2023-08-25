@@ -101,9 +101,11 @@ if __name__ == '__main__':
                         print_log(dict_log_srt, date_log) #Se registra en el log de eventos el resumen.
                         os.remove(file_path)
         except:
+            Flag_Status("w") #Se cambia el estado de la bandera "FLAG" a false.
             error=sys.exc_info()[2] #Captura del error generado por el sistema.
             errorinfo=traceback.format_tb(error)[0] #Cartura del detalle del error.
             print(str(sys.exc_info()[1]), errorinfo, sep='\n\n')
+            print_log(dict_log_srt, date_log) #Se registra en el log de eventos el resumen.
             pass
 
 
