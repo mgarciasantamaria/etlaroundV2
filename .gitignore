@@ -1,0 +1,4 @@
+*.docx
+*log
+test*.py
+venv
