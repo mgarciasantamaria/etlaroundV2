@@ -56,7 +56,7 @@ if __name__ == '__main__':
                             #SE establece el contador de manifest a 0
                             count_manifests=0
                         #Se crea un DataFrame aplicando los filtros necesarios para encontrar los segmentos de video validos. De los mismo se optienen solamente los datos necesarios.
-                        df_segments=df[((df['cs-uri-stem'].str.contains(r"index_video_\d_\d_\d+.mp4")) | (df['cs-uri-stem'].str.contains(r"Fragments\(v=\d+\)")) | (df['cs-uri-stem'].str.contains(r"index_\d_\d+.ts"))) & ((df['sc-status']==200) | (df['sc-status']==206))][['date', 'time', 'cs-uri-stem', 'cs-uri-query']]
+                        df_segments=df[((df['cs-uri-stem'].str.contains(r"index_video_\d+_\d+_\d+.mp4")) | (df['cs-uri-stem'].str.contains(r"Fragments\(v=\d+\)")) | (df['cs-uri-stem'].str.contains(r"index_\d+_\d+.ts"))) & ((df['sc-status']==200) | (df['sc-status']==206))][['date', 'time', 'cs-uri-stem', 'cs-uri-query']]
                         if not(df_segments.empty):
                             #Se aplica la funcion Segments_Query_Transform a la columna 'cs-uri-query' el resultado se guarda en una lista.
                             df_segments['cs-uri-query']=df_segments['cs-uri-query'].map(Segments_Query_Transform)
