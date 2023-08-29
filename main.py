@@ -31,7 +31,7 @@ if __name__ == '__main__':
                         #Se establece la cantidad de lineas que posee el log
                         quantity=df.shape[0]
                         #Se crea un Dataframe aplicando los filtros necesarios para separar unicamente los manifests validos. De los mismos se optienen solamente los datos nesesarios.
-                        df_manifests=df[((df['cs-uri-stem'].str.endswith('index.m3u8')) | (df['cs-uri-stem'].str.endswith('index.mpd')) | (df['cs-uri-stem'].str.endswith('Manifest'))) & ((df['sc-status']==200) | (df['sc-status']==206))][['date', 'time', 'cs-uri-stem', 'cs-uri-query', 'x-edge-request-id']]
+                        df_manifests=df[((df['cs-uri-stem'].str.endswith('index.m3u8')) | (df['cs-uri-stem'].str.endswith('index.mpd')) | (df['cs-uri-stem'].str.endswith('Manifest'))) & ((df['sc-status']==200) | (df['sc-status']==206))][['date', 'time', 'cs-uri-stem', 'cs-uri-query', 'x-edge-request-id', ]]
                         if not(df_manifests.empty):
                             #Se aplica la funcion Uri_Transform a todos los datos de la columna 'cs-uri-stem', los cuales se transforman en una lista con los datos mso_name, country, uri_id
                             df_manifests['cs-uri-stem']=df_manifests['cs-uri-stem'].map(Uri_Transform)
@@ -56,12 +56,14 @@ if __name__ == '__main__':
                             #SE establece el contador de manifest a 0
                             count_manifests=0
                         #Se crea un DataFrame aplicando los filtros necesarios para encontrar los segmentos de video validos. De los mismo se optienen solamente los datos necesarios.
-                        df_segments=df[((df['cs-uri-stem'].str.contains(r"index_video_\d+_\d+_\d+.mp4")) | (df['cs-uri-stem'].str.contains(r"Fragments\(v=\d+\)")) | (df['cs-uri-stem'].str.contains(r"index_\d+_\d+.ts"))) & ((df['sc-status']==200) | (df['sc-status']==206))][['date', 'time', 'cs-uri-stem', 'cs-uri-query']]
+                        df_segments=df[((df['cs-uri-stem'].str.contains(r"index_video_\d+_\d+_\d+.mp4")) | (df['cs-uri-stem'].str.contains(r"Fragments\(v=\d+\)")) | (df['cs-uri-stem'].str.contains(r"index_\d+_\d+.ts"))) & ((df['sc-status']==200) | (df['sc-status']==206))][['date', 'time', 'cs-uri-stem', 'cs-uri-query', 'cs(User-Agent)']]
                         if not(df_segments.empty):
                             #Se aplica la funcion Segments_Query_Transform a la columna 'cs-uri-query' el resultado se guarda en una lista.
                             df_segments['cs-uri-query']=df_segments['cs-uri-query'].map(Segments_Query_Transform)
                             #Se dividen los datos de la lista anterior para ser agregados al mismo dataframe como 2 columnas
                             df_segments['device'], df_segments['manifestid']=zip(*df_segments['cs-uri-query'])
+                            condition = ~(df_segments['cs(User-Agent)'].str.contains(r"Mozilla/.*", na=False)) & (df_segments['device'].str.contains('desktop', na=False))
+                            df_segments.loc[condition, 'device']='stb'
                             df_segments['datetime']=df_segments['date'] + " " + df_segments['time']
                             df_segments=df_segments.drop(['date', 'time', 'cs-uri-query'], axis='columns')
 
