@@ -45,12 +45,7 @@ def Download_Logs(DATE_LOG):
                     CopySource=f'{Bucket_logs}/{log_Key}', #Se establece la ruta del objeto en el bucket de origen.
                     Key=f'{log_Key}' #Se establece el nombre del objeto en el destino.
                     )
-                s3_client.copy_object( 
-                    Bucket='logs-around-test', #Se establece el bucket de destino.
-                    CopySource=f'{Bucket_logs}/{log_Key}', #Se establece la ruta del objeto en el bucket de origen.
-                    Key=f'{log_Key}' #Se establece el nombre del objeto en el destino.
-                    )
-            #Se eliminan los objetos en el bucket de origen.    
+                #Se eliminan los objetos en el bucket de origen.    
             s3_client.delete_objects(
                     Bucket=Bucket_logs, #Se establce el bucket.
                     Delete=objects #Se establce la lista de objetos a eliminar.
@@ -270,7 +265,9 @@ def playbacks_task(summary_dict):
                     curpsql.execute(sql, data_sql)
         postgresql.commit()
         postgresql.close()
+        return {}
     except:
         error=sys.exc_info()[2] #Captura del error generado por el sistema.
         errorinfo=traceback.format_tb(error)[0]
         print(f'Error: {str(sys.exc_info()[1])}', f'error_info : {errorinfo}')
+        return {'Error': str(sys.exc_info()[1]), 'error_info' : errorinfo}

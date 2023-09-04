@@ -1,3 +1,4 @@
 *.docx
 test*.py
 venv
+modules/__pycache__

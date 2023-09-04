@@ -1,7 +1,6 @@
 from modules.constants import *
 from modules.functions import *
-import pandas as pd
-import gzip, io, time, glob, os
+import gzip, io, time, shutil
 
 #Inicio del codigo principal
 if __name__ == '__main__':
@@ -11,8 +10,8 @@ if __name__ == '__main__':
     if Flag_Status('r'):
         try:
             #Se recoge la lista de los archivos logs descargados que entrega la funcion Download_Logs.
-            #logs_List=Download_Logs(date_log)
-            logs_List=glob.glob(Downloads_Path)
+            logs_List=Download_Logs(date_log)
+            #logs_List=glob.glob(Downloads_Path)
             if type(logs_List) == list:
                 #Se imprime en pantalla la lista de los logs.
                 print(f"Log list: {logs_List}")
@@ -88,20 +87,31 @@ if __name__ == '__main__':
                             for inner_key in keys_to_remove:
                                 value.pop(inner_key)
                         
-                        playbacks_task(summary_dict)
-                        print(summary_dict)
-                        finish=time.time() #Captura del tiempo en el instante que termina de procesar un log.
-                        dict_log[file_path.split('/')[-1]]={
-                            'Process_Duration': str(round((finish-beginning), 3)),
-                            'Processed_Lines': str(quantity),
-                            'Manifests': str(count_manifests),
-                            'Segments': str(count_segments),
-                            'Summary': summary_dict
-                        }
-                        dict_log_srt=json.dumps(dict_log, sort_keys=True, indent=4) #Se transforma el diccionario a formato texto.
-                        print(dict_log_srt)
-                        print_log(dict_log_srt, date_log) #Se registra en el log de eventos el resumen.
-                        os.remove(file_path)
+                        playbacks_task_summary=playbacks_task(summary_dict)
+                        if playbacks_task_summary != {}:
+                            dict_log[file_path.split('/')[-1]]={
+                                'playbacks_task_Error': playbacks_task_summary
+                            }
+                            Flag_Status("w") #Se cambia el estado de la bandera "FLAG" a false.
+                            dict_log_srt=json.dumps(dict_log, sort_keys=True, indent=4) #Se transforma el diccionario a formato texto.
+                            print_log(dict_log_srt, date_log) #Se registra en el log de eventos el resumen.
+                            mail_subject='FAIL etlaroundV2 PROD execution error' #Se establece el asunto del correo.
+                            SendMail(dict_log_srt, mail_subject) #Se envia correo electronico.
+                            quit()
+                        else:
+                            print(summary_dict)
+                            finish=time.time() #Captura del tiempo en el instante que termina de procesar un log.
+                            dict_log[file_path.split('/')[-1]]={
+                                'Process_Duration': str(round((finish-beginning), 3)),
+                                'Processed_Lines': str(quantity),
+                                'Manifests': str(count_manifests),
+                                'Segments': str(count_segments),
+                                'Summary': summary_dict
+                            }
+                            dict_log_srt=json.dumps(dict_log, sort_keys=True, indent=4) #Se transforma el diccionario a formato texto.
+                            print(dict_log_srt)
+                            print_log(dict_log_srt, date_log) #Se registra en el log de eventos el resumen.
+                            shutil.move(file_path, destination_Path+file_path.split('/')[-1])
         except:
             Flag_Status("w") #Se cambia el estado de la bandera "FLAG" a false.
             error=sys.exc_info()[2] #Captura del error generado por el sistema.
@@ -110,9 +120,11 @@ if __name__ == '__main__':
                 'Error': str(sys.exc_info()[1]),
                 'error_info': errorinfo
             }
+            dict_log['Logs_List']=logs_List
             dict_log_srt=json.dumps(dict_log, sort_keys=True, indent=4) #Se transforma el diccionario a formato texto.
             print(str(sys.exc_info()[1]), errorinfo, sep='\n\n')
             print_log(dict_log_srt, date_log) #Se registra en el log de eventos el resumen.
-            pass
+            mail_subject='FAIL etlaroundV2 PROD execution error' #Se establece el asunto del correo.
+            SendMail(dict_log_srt, mail_subject) #Se envia correo electronico.
 
 
