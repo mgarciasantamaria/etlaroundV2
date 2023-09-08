@@ -1,7 +1,6 @@
 from modules.constants import *
 from modules.functions import *
-import gzip, io, time, shutil
-
+import gzip, io, time, shutil, glob
 #Inicio del codigo principal
 if __name__ == '__main__':
     #Se recoge el dato de fecha y hora en el instante en que se ejecuta el codigo.

@@ -10,7 +10,7 @@ db_table='playbacks'
 Bucket_logs='logs-around-prod' #Use (functions:Dowload_Logs)
 Bucket_logs_old='logs-old-around-prod' #Use (functions:Dowload_Logs)
 aws_profile='pythonapps' #Use (functions:Dowload_Logs, extract_xml_data)
-Mail_To='ingenieriavcmc@vcmedios.com.co' #Use (functions:SendMail)
+Mail_To=['ingenieriavcmc@vcmedios.com.co', 'cparada@vcmedios.com.co'] #Use (functions:SendMail)
 
 dict_summary={}
 dict_manifest={}

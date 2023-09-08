@@ -14,7 +14,7 @@ def SendMail(text, mail_subject):
     msg.set_content(text) #se establece el contenido del correo electrónico como el valor del argumento text que se pasó a la función.
     msg['Subject'] = mail_subject #establece el asunto del correo electrónico como el valor del argumento mail_subject que se pasó a la función.
     msg['From'] = 'alarmas-aws@vcmedios.com.co' #Establece la dirección de correo electrónico del remitente como alarmas-aws@vcmedios.com.co.
-    msg['To'] = [Mail_To] #Establece la dirección de correo electrónico del destinatario como el valor de una constante llamada Mail_To.
+    msg['To'] = Mail_To #Establece la dirección de correo electrónico del destinatario como el valor de una constante llamada Mail_To.
     conexion = smtplib.SMTP(host='10.10.130.217', port=25) #Se establece una conexión con un servidor SMTP que se encuentra en la dirección IP 10.10.122.17 y el puerto 25. Esta conexión se asigna a la variable conexion.
     conexion.ehlo() #Se utiliza el comando EHLO (abreviatura de "Hola extendido") para iniciar una conexión con el servidor SMTP.
     conexion.send_message(msg) #se envía el mensaje de correo electrónico utilizando la conexión establecida anteriormente.
@@ -172,16 +172,22 @@ def Metadata_Extract(x):
             )
         response=json.loads(r.data.decode('utf-8'))['responseObject']
         duration=response['displayRuntime']
-        duration=duration.split(':')
-        while len(duration)>3:
-            duration.remove('')
-        duration_seconds=round(
-            datetime.timedelta(
-                hours=int(duration[0]),
-                minutes=int(duration[1]),
-                seconds=int(duration[2])
-                ).total_seconds()
-            )
+        if duration != None:
+            duration=duration.split(':')
+            while len(duration)>3:
+                duration.remove('')
+            duration_seconds=round(
+                datetime.timedelta(
+                    hours=int(duration[0]),
+                    minutes=int(duration[1]),
+                    seconds=int(duration[2])
+                    ).total_seconds()
+                )
+        else:
+            duration_seconds=0
+            mail_subject='WARNING etlaroundV2 PROD Metadata_Extract error' #Se establece el asunto del correo.
+            mail_body=f"Se ha establecido la duracion del contenido en 0 ya que el mismo no esta disponble en la metadata de API assetId: {response['assetId']}"
+            SendMail(mail_body, mail_subject) #Se envia correo electronico.
         contenttype=response['assetType']
         d['uri_id'].append(URI_ID)
         d['assetid'].append(response['assetId']),                 #assetid
